@@ -1,0 +1,7 @@
+constant_push.pl:
+
+Command line tool to 'constantly' push changes from a local directory to a directory on a remote machine without constantly using the network.
+
+sync.pl:
+
+Used by constant_push.pl to do the actual syncing of files.
