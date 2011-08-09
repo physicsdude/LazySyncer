@@ -18,23 +18,23 @@ use Cwd qw/abs_path/;
 # This way the script does not need to run a full rsync.
 
 # need to undo lock if die
-$SIG{__DIE__} = sub { undo_lock(); print "DYING!"; die @_; };
+local $SIG{__DIE__} = sub { undo_lock(); print "DYING!"; die @_; };
 $|++;
 
 my $local;
 my $remote;
 my $user_local;
 my $user_remote;
-my $excludes = '.*.swp,.*.swo,.git,.~.*,.*.komodoproject';
-my $rsync = 'rsync --rsync-path="nice -n 19 rsync" -ave ssh ';
 my $remote_host;
 my $last_push_file;
 my $files_from_file;
 my $lock_file;
-my $lock_wait  = 1;
-my $lock_tries = 10;
 my $bandwidth_throttle;
 my $no_throttle;
+my $excludes = '.*.swp,.*.swo,.git,.~.*,.*.komodoproject';
+my $rsync    = 'rsync --rsync-path="nice -n 19 rsync" -ave ssh ';
+my $lock_wait        = 1;
+my $lock_tries       = 10;
 my $default_throttle = 250;
 my $pull             = 0;
 my $push             = 0;
@@ -43,12 +43,12 @@ my $test             = 0;
 my $show             = 0;
 my $new              = 0;  # for push, find files new compared to last sync to sync
 my $quiet            = 1;  # don't say anything - unless you synced something
-our $stfu = 0;             # never say nothin
-my $verbose         = 0;
-my $delete          = 0;
-my $break           = 0;
-my $komodo_friendly = 1;
-my $result          = GetOptions(
+my $stfu             = 0;  # never say nothin
+my $verbose          = 0;
+my $delete           = 0;
+my $break            = 0;
+my $komodo_friendly  = 1;
+my $result           = GetOptions(
 	"push"               => \$push,
 	"pull"               => \$pull,
 	"sync"               => \$sync,
@@ -305,7 +305,8 @@ sub shout {
 sub run_cmd {
 	my $cmd     = shift;
 	my $stfu_in = shift;
-	local $stfu = 1 if $stfu_in;
+	$stfu++ if $stfu_in;
+
 	shout("Running command ($cmd)");
 	my $out = `$cmd 2>&1`;
 	if ($? != 0) {
@@ -313,6 +314,7 @@ sub run_cmd {
 	}
 	shout($out);
 
+	$stfu-- if $stfu;
 	return $out;
 }
 
