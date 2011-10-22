@@ -19,7 +19,7 @@ use Cwd qw/abs_path/;
 
 # need to undo lock if die
 local $SIG{__DIE__} = sub { undo_lock(); print "DYING!"; die @_; };
-$|++;
+$|++; # autmatically flush output
 
 my $local;
 my $remote;
@@ -138,7 +138,7 @@ if ($push and $new) {
 		# Clean up last files from file
 		verbose("Checking if files from file ($files_from_file) exists");
 		if (-e $files_from_file) {
-			verbose("Cleaning up files form file ($files_from_file)");
+			verbose("Cleaning up files from file ($files_from_file)");
 			unlink $files_from_file or die "Couldn't clean up $last_push_file";
 		}
 
@@ -226,7 +226,14 @@ if ($push) {
 	else {
 		run_cmd("$push_cmd 2>&1");
 		if (not $test) {
-			run_cmd("mv \"$last_push_file.tmp\" \"$last_push_file\"");
+			if ( -e "$last_push_file.tmp" ) {
+				run_cmd("mv \"$last_push_file.tmp\" \"$last_push_file\"");
+			}
+			else {
+				# Create the last push file for next time
+				run_cmd("touch \"$last_push_file.tmp\"", 'quietly'); 
+			}
+
 		}
 	}
 }

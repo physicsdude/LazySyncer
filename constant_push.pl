@@ -12,7 +12,6 @@ my $verbose      = 0;
 my $quiet        = 0;
 my $reload       = 0;
 my $restart      = 0;
-my $restart_prov = 0;
 my $push_count   = 0;
 
 # Do a full rsync approx every hour
@@ -29,7 +28,6 @@ my $result = GetOptions(
 	"full_push_interval=i" => \$full_push_interval, # string
 	"reload"               => \$reload,
 	"restart"              => \$restart,
-	"restart_prov"         => \$restart_prov,
 	"verbose"              => \$verbose,
 );
 exit "Incorrect options: $!" if not $result;
@@ -47,7 +45,6 @@ $push_options .= " --user_local $user_local"     if $user_local;
 $push_options .= " --user_remote $user_remote"   if $user_remote;
 $push_options .= " --remote_host $remote_host"   if $remote_host;
 $push_options .= " --restart $restart"           if $restart;
-$push_options .= " --restart_prov $restart_prov" if $restart_prov;
 $push_options .= " --reload $reload"             if $reload;
 $push_options .= " --verbose"                    if $verbose;
 $push_options .= " --quiet"                      if not $verbose;
@@ -94,5 +91,5 @@ while (not $error) {
 		}
 	}
 
-	sleep 2;
+	sleep 1;
 }
