@@ -35,7 +35,7 @@ my $excludes = '.*.swp,.*.swo,.git,.~.*,.*.komodoproject';
 my $rsync    = 'rsync --rsync-path="nice -n 19 rsync" -ave ssh ';
 my $lock_wait        = 1;
 my $lock_tries       = 10;
-my $default_throttle = 250;
+my $default_throttle = 750;
 my $pull             = 0;
 my $push             = 0;
 my $sync             = 0;  # a pull followed by a push
@@ -101,7 +101,7 @@ if ($sync) {
 my @excludes = split(',', $excludes);
 my $excludes_opt;
 foreach my $x (@excludes) {
-	$excludes_opt .= ' --exclude ' . $x . ' ';
+	$excludes_opt .= " --exclude '" . $x . "' ";
 }
 
 # Wait for the lock to be unset or die
