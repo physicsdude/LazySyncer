@@ -14,10 +14,10 @@ my $reload       = 0;
 my $restart      = 0;
 my $push_count   = 0;
 
-# Do a full rsync approx every hour
-my $full_push_interval = 3000;
+# Do a full rsync approx every two minutes
+my $full_push_interval = 120;
 my $push_options       = '';
-my ($local, $remote, $user_local, $user_remote, $remote_host);
+my ($local, $remote, $user_local, $user_remote, $remote_host,$excludes);
 
 my $result = GetOptions(
 	"remote=s"             => \$remote,             # remote dir
@@ -26,6 +26,7 @@ my $result = GetOptions(
 	"user_remote=s"        => \$user_remote,        # string
 	"remote_host=s"        => \$remote_host,        # string
 	"full_push_interval=i" => \$full_push_interval, # string
+	"excludes=s"           => \$excludes, # string
 	"reload"               => \$reload,
 	"restart"              => \$restart,
 	"verbose"              => \$verbose,
@@ -46,6 +47,7 @@ $push_options .= " --user_remote $user_remote"   if $user_remote;
 $push_options .= " --remote_host $remote_host"   if $remote_host;
 $push_options .= " --restart $restart"           if $restart;
 $push_options .= " --reload $reload"             if $reload;
+$push_options .= " --excludes '$excludes'"       if $excludes;
 $push_options .= " --verbose"                    if $verbose;
 $push_options .= " --quiet"                      if not $verbose;
 

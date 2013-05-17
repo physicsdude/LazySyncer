@@ -35,7 +35,7 @@ my $excludes = '.*.swp,.*.swo,.git,.~.*,.*.komodoproject';
 my $rsync    = 'rsync --rsync-path="nice -n 19 rsync" -ave ssh ';
 my $lock_wait        = 1;
 my $lock_tries       = 10;
-my $default_throttle = 750;
+my $default_throttle = 2000;
 my $pull             = 0;
 my $push             = 0;
 my $sync             = 0;  # a pull followed by a push
@@ -48,6 +48,7 @@ my $verbose          = 0;
 my $delete           = 0;
 my $break            = 0;
 my $komodo_friendly  = 1;
+my $excludes_in;
 my $result           = GetOptions(
 	"push"               => \$push,
 	"pull"               => \$pull,
@@ -59,7 +60,7 @@ my $result           = GetOptions(
 	"show"               => \$show,
 	"break"              => \$break,
 	"local=s"            => \$local,             # string
-	"excludes=s"         => \$excludes,          # string
+	"excludes=s"         => \$excludes_in,          # string
 	"remote=s"           => \$remote,            # string
 	"user_local=s"       => \$user_local,        # string
 	"user_remote=s"      => \$user_remote,       # string
@@ -72,6 +73,7 @@ my $result           = GetOptions(
 die 'incorrect options' unless $result;
 die 'need local'  if not $local;
 die 'need remote' if not $remote;
+$excludes .= ",$excludes_in" if $excludes_in;
 if (not $push and not $pull) {
 
 	# default to pull
@@ -264,7 +266,7 @@ sub undo_lock {
 	if ($verbose) {
 		print "\nbreaking lock file ($lock_file)\n";
 	}
-	if (-e $lock_file) {
+	if ($lock_file and -e $lock_file) {
 		unlink $lock_file or warn "Couldn't delete lock file: $!";
 	}
 	return 1;
