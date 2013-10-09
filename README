@@ -1,3 +1,5 @@
+There's nothing fancy to see here; it just works.
+
 constant_push.pl:
 
 Command line tool to 'constantly' push changes from a local directory to a directory on a remote machine without constantly using the network.
@@ -6,4 +8,12 @@ sync.pl:
 
 Used by constant_push.pl to do the actual syncing of files.
 
-There's nothing fancy to see here; it just works.
+
+Why would you use this?
+
+constant_push.pl can be handy when you're doing remote development.
+It turns out it's really nice to be able to edit files that actually exist on your local box instead of editing the code using vim over ssh or using sshfs.  
+If you've tried doing either of those things you know they have downsides, admit it.
+That's not to say using this script doesn't have downsides, e.g. you need to make sure you set up and start this script, and it blows away your remote .git directories (you keep your local ones - it turns out syncing git directories all the time is not a great idea), but IMO it's preferable to edit files locally.
+Another benefit is that you can have several copies of your repo on your local machine, each with different branches on them, and you can sync the chosen one to the remote server.  
+Then you can work on something else without having to mess with what you were doing in the other directory.
