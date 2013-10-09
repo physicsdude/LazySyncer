@@ -36,6 +36,7 @@ die 'need local'             if not $local;
 die 'need remote'            if not $remote;
 my $push_out = "$local/../.push_stdout";
 my $push_err = "$local/../.push_stderr";
+`touch $push_out; touch $push_err;`;
 my $push_cmd = "$sync --push";
 $push_out = $push_out . '.' . $remote_host if $remote_host;
 $push_err = $push_err . '.' . $remote_host if $remote_host;
