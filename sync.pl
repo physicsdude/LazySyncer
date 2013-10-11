@@ -49,6 +49,7 @@ my $verbose          = 0;
 my $delete           = 0;
 my $break            = 0;
 my $komodo_friendly  = 1;
+my $lazydir          = "$ENV{HOME}/.lazysyncer";
 my $excludes_in;
 my $result           = GetOptions(
 	"push"               => \$push,
@@ -67,6 +68,7 @@ my $result           = GetOptions(
 	"user_remote=s"      => \$user_remote,       # string
 	"rsync=s"            => \$rsync,             # string
 	"remote_host=s"      => \$remote_host,       # string
+	"lazydir=s"          => \$lazydir,       # string
 	"verbose"            => \$verbose,
 	"bandwidth_throttle" => \$bandwidth_throttle,
 	"no_throttle"        => \$no_throttle,
@@ -92,9 +94,10 @@ if ($delete) {
 if (not defined $bandwidth_throttle) {
 	$bandwidth_throttle = $default_throttle; # default 2 mbps
 }
-$last_push_file  = abs_path("$local/../.last_push.$remote_host")  if not $last_push_file;
-$files_from_file = abs_path("$local/../.files_from.$remote_host") if not $files_from_file;
-$lock_file       = abs_path("$local/../.sync_lock.$remote_host")  if not $lock_file;
+if ( not -d $lazydir ) { mkdir $lazydir or die "Couldn't make directory '$lazydir': $!" };
+$last_push_file  = abs_path("$lazydir/.last_push.$remote_host")  if not $last_push_file;
+$files_from_file = abs_path("$lazydir/.files_from.$remote_host") if not $files_from_file;
+$lock_file       = abs_path("$lazydir/.sync_lock.$remote_host")  if not $lock_file;
 
 if ($sync) {
 	$push = 1;
@@ -105,7 +108,7 @@ my @excludes = split(',', $excludes);
 my $excludes_opt;
 foreach my $x (@excludes) {
 	$excludes_opt .= " --exclude '" . $x . "' ";
-	$x =~ s/\*/.*/; # perl regex instead of rsync regex pattern match
+	$x =~ s/\*/.*/g; # perl regex instead of rsync regex pattern match
 }
 
 # Wait for the lock to be unset or die
@@ -134,7 +137,7 @@ create_lock();
 # Find files that have changed locally since last sync
 if ($push and $new) {
 
-	my $find_new = "/usr/bin/find $local -newer $last_push_file";
+	my $find_new = "/usr/bin/find $local -newer $last_push_file 2>/dev/null";
 
 	verbose("Checking if last push file ($last_push_file) exists");
 	if (-e $last_push_file) {
@@ -166,7 +169,10 @@ if ($push and $new) {
 
 			# ignore some stuff
 			foreach my $x (@excludes) {
-				next FILE if $f =~ /$x/;
+				if ($f =~ /$x/) {
+					verbose("Skipping because of excludes regex '$x'");
+					next FILE;
+				}
 			}
 			if ($komodo_friendly) {
 
