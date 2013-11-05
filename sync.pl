@@ -32,7 +32,7 @@ my $lock_file;
 my $bandwidth_throttle;
 my $no_throttle;
 # excludes here should be in a format rsync understands, e.g. *.sw* to ignore all vim swap files
-my $excludes = '*.sw*,.git,.~*,.komodoproject,.DS_Store,.Trashes,.Spotlight*,.fseventsd';
+my $excludes = '*.sw*,.git,.~*,.komodoproject,.DS_Store,.Trashes,.Spotlight*,.fseventsd,.DocumentRevisions-V100';
 my $rsync    = 'rsync --rsync-path="nice -n 19 rsync" -ave ssh ';
 my $lock_wait        = 1;
 my $lock_tries       = 10;
