@@ -3,6 +3,7 @@ use warnings;
 use strict;
 use Getopt::Long;
 use FindBin qw($Bin);
+use File::Path qw(make_path);
 
 # script that acts like a daemon to constantly push local to remote but only if a local file has changed - remote is not queried until then
 $|++;
@@ -34,12 +35,16 @@ my $result = GetOptions(
 exit "Incorrect options: $!" if not $result;
 die 'need local'             if not $local;
 die 'need remote'            if not $remote;
-my $push_out = "$local/../.push_stdout";
-my $push_err = "$local/../.push_stderr";
-`touch $push_out; touch $push_err;`;
 my $push_cmd = "$sync --push";
-$push_out = $push_out . '.' . $remote_host if $remote_host;
-$push_err = $push_err . '.' . $remote_host if $remote_host;
+my $control_file_dir = "$local/../.constant_push";
+$control_file_dir .= "/$remote_host" if $remote_host;
+my $push_out = $control_file_dir."/.push_stdout";
+my $push_err = $control_file_dir."/.push_stderr";
+if ( not -d $control_file_dir ) {
+	make_path($control_file_dir) or die "Couldn't make control file dir $control_file_dir";
+	print "Made control file directory $control_file_dir";
+}
+`touch $push_out; touch $push_err;`;
 
 $push_options .= " --local $local"               if $local;
 $push_options .= " --remote $remote"             if $remote;
